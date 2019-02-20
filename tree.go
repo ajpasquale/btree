@@ -1,6 +1,22 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+	"sort"
+	"strings"
+)
+
+// LevelOne is a dick
+const (
+	LevelTwo = 3*1<<iota - 1
+	LevelThree
+	LevelFour
+	LevelFive
+	LevelSix
+	LevelSeven
+	LevelOne = 0
+)
 
 //Node is a structure to hold a binary tree
 type Node struct {
@@ -26,13 +42,12 @@ func Insert(root *Node, v int) *Node {
 }
 
 //Traverse the tree
-func Traverse(prev *Node, root *Node, direction string) {
+func Traverse(root *Node) {
 	if root == nil {
 		return
 	}
-	fmt.Println(prev.value, root.value, direction)
-	Traverse(root, root.left, "left")
-	Traverse(root, root.right, "right")
+	Traverse(root.left)
+	Traverse(root.right)
 }
 
 //Size returns (number of nodes) in the tree
@@ -76,18 +91,76 @@ func Find(root *Node, v int) int {
 	return 0
 }
 
-func main() {
-	var root *Node
-	root = Insert(root, 2)
-	root = Insert(root, 7)
-	root = Insert(root, 3)
-	root = Insert(root, 6)
-	root = Insert(root, 5)
-	root = Insert(root, 11)
-	root = Insert(root, 1)
-	root = Insert(root, 9)
-	root = Insert(root, 4)
+//Print prints a graphical representation of the tree :)
+func Print(root *Node) {
+	ts := Height(root)
+	var levels []int
+	var spaces []string
+	var branches []string
 
-	Traverse(root, root, "root")
-	//fmt.Println(tree.Find(root, 40))
+	for i := 0; i < ts; i++ {
+		j := float64(i)
+		levels = append(levels, int(math.Pow(2, j)))
+	}
+	for i := ts - 1; i >= 0; i-- {
+		j := float64(i)
+		//spaces = append(spaces, 3*int(math.Pow(2, j)))
+		spaces = append(spaces, strings.Repeat(" ", 3*int(math.Pow(2, j))-1))
+		branches = append(branches, strings.Repeat("-", 3*int(math.Pow(2, j))-1))
+	}
+}
+
+func toDash(h int) []string {
+	var dashes []string
+	//var prevPatternLen int
+	for i := h; i >= 0; i-- {
+		var tDash string
+		var tSpace string
+		j := float64(i)
+		patternLen := 3*int(math.Pow(2, j)) - 1
+		if patternLen < 3 {
+			patternLen++
+		}
+		tDash = strings.Repeat("-", patternLen)
+		tSpace = strings.Repeat(" ", patternLen)
+
+		tDash = replaceAtIndex(tDash, '|', len(tDash)/2)
+		tDash = tSpace + tDash
+		dashes = append(dashes, tDash)
+		//prevPatternLen = patternLen
+	}
+	return dashes
+}
+func replaceAtIndex(str string, replacement rune, index int) string {
+	return str[:index] + string(replacement) + str[index+1:]
+}
+
+// when looking at the output visually it seems to produce an inverse
+// of x squared? maybe useful for optimization?
+func spacingFactor(h int) []int {
+	var sf []int
+	for i := 0; i < h-1; i++ {
+		var tf int
+		if i == 0 {
+			sf = append(sf, 0)
+		}
+		f := float64(i)
+		tf = 3*int(math.Pow(2, f)) - 1
+		sf = append(sf, tf)
+	}
+	sort.Sort(sort.Reverse(sort.IntSlice(sf)))
+	return sf
+}
+func spacing() []int {
+	var levels = []int{LevelOne, LevelTwo, LevelThree,
+		LevelFour, LevelFive, LevelSix, LevelSeven}
+	return levels
+}
+func main() {
+
+	sf := spacingFactor(7)
+	sp := spacing()
+	fmt.Println(sf)
+	fmt.Println(sp)
+
 }
