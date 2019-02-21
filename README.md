@@ -1,3 +1,3 @@
 # btree
 
-hopefully to implement a binary tree. Most likely rooted and 
+list package implements a binary tree and a simple search.
